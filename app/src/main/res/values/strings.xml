@@ -1,0 +1,19 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Payment Manager</string>
+    <string name="envelopes">Envelopes</string>
+    <string name="current_amount">Current amount:</string>
+    <string name="auto_update_amount">Auto-update amount:</string>
+    <string name="total_money_bank">Total money in bank account:</string>
+    <string name="total_money_envelopes">Total amount in envelopes:</string>
+    <string name="total_checks_not_cashed">Total amount of checks not yet cashed:</string>
+    <string name="money_remaining">Money remaining:</string>
+    <string name="placeholder_money">$1000</string>
+    <string name="dollar_symbol">$</string>
+    <string name="bank_acc_balance">Bank Account Balance</string>
+    <string name="checks_not_cashed">Checks Not Yet Cashed</string>
+    <string name="action_add">Add</string>
+    <string name="create_new_envelope">Create New Envelope</string>
+    <string name="total_amount_dialog">Total Amount</string>
+    <string name="auto_update_amount_dialog">Auto-update Amount</string>
+    <string name="btn_dialog_create">Create</string>
+</resources>
