@@ -22,16 +22,6 @@ public class BankAmountDialog extends AppCompatDialogFragment {
     public BankAmountDialog(BankAmountListener listener) {
         this.listener = listener;
     }
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//
-//        try {
-//            listener = (BankAmountListener) context;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(context.toString());
-//        }
-//    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
