@@ -30,9 +30,10 @@ public class NewEnvelopeDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (isFilled(envelopeName, envelopeAmount, envelopeAutoUpdate)) {
-                            Toast.makeText(getContext(), envelopeName.toString() + " created", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), envelopeName.getText().toString() + " created", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Cancel", null)

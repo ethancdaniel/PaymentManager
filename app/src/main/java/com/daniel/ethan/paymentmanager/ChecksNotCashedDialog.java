@@ -14,6 +14,7 @@ import static com.daniel.ethan.paymentmanager.Utils.isFilled;
 
 public class ChecksNotCashedDialog extends AppCompatDialogFragment {
     EditText checksNotCashedAmount;
+    ChecksNotCashedListener listener;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -27,12 +28,18 @@ public class ChecksNotCashedDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (isFilled(checksNotCashedAmount)) {
-                            Toast.makeText(getContext(), checksNotCashedAmount.toString() + " created", Toast.LENGTH_SHORT).show();
+                            listener.applyChecks(Integer.parseInt(checksNotCashedAmount.getText().toString()));
+                            Toast.makeText(getContext(), checksNotCashedAmount.getText().toString() + " created", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    public interface ChecksNotCashedListener {
+        void applyChecks(Integer amount);
     }
 }

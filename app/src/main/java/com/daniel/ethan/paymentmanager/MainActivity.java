@@ -86,7 +86,14 @@ public class MainActivity extends AppCompatActivity {
         btnMoneyInBank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BankAmountDialog dialog = new BankAmountDialog();
+
+                BankAmountDialog dialog = new BankAmountDialog(new BankAmountDialog.BankAmountListener() {
+                    @Override
+                    public void applyBankAmount(Integer amount) {
+                        btnMoneyInBank.setText(formatMoney(amount));
+                        updateMoneyOwed();
+                    }
+                });
                 dialog.setRetainInstance(true);
                 dialog.show(getSupportFragmentManager(), "bank amount dialog");
             }
@@ -118,5 +125,13 @@ public class MainActivity extends AppCompatActivity {
             textMoneyRemaining.setTextColor(getResources().getColor(R.color.red));
         }
         textMoneyRemaining.setText("" + moneyOwed);
+    }
+
+    public String formatMoney(Integer s) {
+        return "$" + s;
+    }
+
+    public Integer parseMoneyString(String s) {
+        return 0;
     }
 }
