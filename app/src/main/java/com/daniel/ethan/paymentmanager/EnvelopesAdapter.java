@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
+
 public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.ViewHolder> {
 
     private ArrayList<String> envelopeNames;
@@ -37,8 +39,8 @@ public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         viewHolder.envelopeName.setText(envelopeNames.get(i));
-        viewHolder.currentAmount.setText("$" + envelopeCurrentAmounts.get(i));
-        viewHolder.autoUpdateAmount.setText("$" + envelopeAutoUpdateAmounts.get(i));
+        viewHolder.currentAmount.setText(formatMoney(envelopeCurrentAmounts.get(i)));
+        viewHolder.autoUpdateAmount.setText(formatMoney(envelopeAutoUpdateAmounts.get(i)));
         viewHolder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

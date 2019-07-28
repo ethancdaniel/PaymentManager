@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> envelopeNames = new ArrayList<>(Arrays.asList("Electric Bill", "Phone", "Savings for a Car", "Cable Bill"));
     private ArrayList<Double> currentAmounts = new ArrayList<>(Arrays.asList(100.00, 200.00, 25.00, 100.00));
     private ArrayList<Double> autoUpdateAmounts = new ArrayList<>(Arrays.asList(25.00, 10.00, 5.00, 25.00));
-    private Double moneyInbank;
-    private Double moneyChecksNotCashed;
+    private Double moneyInbank = 1000.00;
+    private Double moneyChecksNotCashed = 1000.00;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +79,10 @@ public class MainActivity extends AppCompatActivity {
         textMoneyRemaining = findViewById(R.id.text_money_remaining);
         envelopesRecycler = findViewById(R.id.envelopes_recycler);
         envelopesRecycler.setHasFixedSize(true);
-        textMoneyInEnvelopes.setText("$" + totalEnvelopesAmount);
+        textMoneyInEnvelopes.setText(formatMoney(totalEnvelopesAmount));
+
+        btnMoneyInBank.setText(formatMoney(moneyInbank));
+        btnMoneyChecksNotCashed.setText(formatMoney(moneyChecksNotCashed));
 
         envelopesAdapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
         envelopesRecycler.setAdapter(envelopesAdapter);
@@ -100,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 BankAmountDialog dialog = new BankAmountDialog(new BankAmountDialog.BankAmountListener() {
                     @Override
                     public void applyBankAmount(Double amount) {
+                        moneyInbank = amount;
                         btnMoneyInBank.setText(formatMoney(amount));
                         updateMoneyOwed();
                     }
@@ -128,19 +132,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateMoneyOwed() {
         totalEnvelopesAmount = 0;
-        double moneyOwed = Double.parseDouble(btnMoneyInBank.getText().toString().substring(1));
-        moneyOwed -= Double.parseDouble(btnMoneyChecksNotCashed.getText().toString().substring(1));
+        double moneyOwed = moneyInbank;
+        moneyOwed -= moneyChecksNotCashed;
 
         for (int i = 0; i < currentAmounts.size(); i++) {
             totalEnvelopesAmount += currentAmounts.get(i);
         }
 
-        textMoneyInEnvelopes.setText("$" + totalEnvelopesAmount);
+        textMoneyInEnvelopes.setText(formatMoney(totalEnvelopesAmount));
         moneyOwed -= totalEnvelopesAmount;
         if (moneyOwed < 0) {
             moneyOwed = -moneyOwed;
             textMoneyRemaining.setTextColor(getResources().getColor(R.color.red));
         }
-        textMoneyRemaining.setText("" + moneyOwed);
+        textMoneyRemaining.setText(formatMoney(moneyOwed));
     }
 }
