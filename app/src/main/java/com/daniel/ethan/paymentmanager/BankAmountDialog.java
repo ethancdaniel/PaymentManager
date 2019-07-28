@@ -1,4 +1,7 @@
 package com.daniel.ethan.paymentmanager;
 
-public class BankAmountDialog {
+import android.support.v4.app.DialogFragment;
+
+public class BankAmountDialog extends DialogFragment {
+
 }

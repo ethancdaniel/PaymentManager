@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import static com.daniel.ethan.paymentmanager.Utils.isFilled;
+
 public class NewEnvelopeDialog extends DialogFragment {
     EditText envelopeName;
     EditText envelopeAmount;
@@ -35,14 +37,5 @@ public class NewEnvelopeDialog extends DialogFragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private boolean isFilled(EditText... editTextCollection) {
-        for (EditText editText : editTextCollection) {
-            if (editText.getText().toString().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 }
