@@ -102,7 +102,13 @@ public class MainActivity extends AppCompatActivity {
         btnMoneyChecksNotCashed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChecksNotCashedDialog dialog = new ChecksNotCashedDialog();
+                ChecksNotCashedDialog dialog = new ChecksNotCashedDialog(new ChecksNotCashedDialog.ChecksNotCashedListener() {
+                    @Override
+                    public void applyChecks(Integer amount) {
+                        btnMoneyChecksNotCashed.setText(formatMoney(amount));
+                        updateMoneyOwed();
+                    }
+                });
                 dialog.setRetainInstance(true);
                 dialog.show(getSupportFragmentManager(), "checks not cashed dialog");
             }
