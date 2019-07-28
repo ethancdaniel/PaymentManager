@@ -52,33 +52,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                View view = getLayoutInflater().inflate(R.layout.dialog_add_envelope, null);
-                final EditText name = view.findViewById(R.id.dialog_add_envelope_name);
-                final EditText totalAmount = view.findViewById(R.id.dialog_add_total_amount);
-                final EditText autoUpdate = view.findViewById(R.id.dialog_add_auto_update_amount);
-                Button createButton = view.findViewById(R.id.dialog_button_create);
-
-                createButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (isFilled(name) && isFilled(totalAmount) && isFilled(autoUpdate)) {
-                            Toast.makeText(MainActivity.this, "envelope created", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                builder.setView(view);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                NewEnvelopeDialog dialog = new NewEnvelopeDialog();
+                dialog.setRetainInstance(true);
+                dialog.show(getSupportFragmentManager(), "new envelope dialog");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private boolean isFilled(EditText editText) {
-        return !editText.getText().toString().isEmpty();
-    }
+
 
     private void initComponents() {
         btnMoneyInBank = findViewById(R.id.btn_money_in_bank);
