@@ -95,27 +95,9 @@ public class MainActivity extends AppCompatActivity {
         btnMoneyChecksNotCashed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-
-                final EditText input = new EditText(v.getContext());
-                input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                builder.setView(input);
-                builder.setTitle(R.string.checks_not_cashed);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        btnMoneyChecksNotCashed.setText("$" + input.getText().toString());
-                        updateMoneyOwed();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();
+                ChecksNotCashedDialog dialog = new ChecksNotCashedDialog();
+                dialog.setRetainInstance(true);
+                dialog.show(getSupportFragmentManager(), "checks not cashed dialog");
             }
         });
     }
