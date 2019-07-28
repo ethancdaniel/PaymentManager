@@ -15,11 +15,11 @@ import java.util.ArrayList;
 public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.ViewHolder> {
 
     private ArrayList<String> envelopeNames;
-    private ArrayList<Integer> envelopeCurrentAmounts;
-    private ArrayList<Integer> envelopeAutoUpdateAmounts;
+    private ArrayList<Double> envelopeCurrentAmounts;
+    private ArrayList<Double> envelopeAutoUpdateAmounts;
     private Context mContext;
 
-    public EnvelopesAdapter(ArrayList<String> envelopeNames, ArrayList<Integer> envelopeCurrentAmounts, ArrayList<Integer> envelopeAutoUpdateAmounts, Context mContext) {
+    public EnvelopesAdapter(ArrayList<String> envelopeNames, ArrayList<Double> envelopeCurrentAmounts, ArrayList<Double> envelopeAutoUpdateAmounts, Context mContext) {
         this.envelopeNames = envelopeNames;
         this.envelopeCurrentAmounts = envelopeCurrentAmounts;
         this.envelopeAutoUpdateAmounts = envelopeAutoUpdateAmounts;

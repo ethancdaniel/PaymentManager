@@ -33,7 +33,7 @@ public class ChecksNotCashedDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (isFilled(checksNotCashedAmount)) {
-                            listener.applyChecks(Integer.parseInt(checksNotCashedAmount.getText().toString()));
+                            listener.applyChecks(Double.parseDouble(checksNotCashedAmount.getText().toString()));
                             Toast.makeText(getContext(), checksNotCashedAmount.getText().toString() + " created", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
@@ -45,6 +45,6 @@ public class ChecksNotCashedDialog extends AppCompatDialogFragment {
     }
 
     public interface ChecksNotCashedListener {
-        void applyChecks(Integer amount);
+        void applyChecks(Double amount);
     }
 }

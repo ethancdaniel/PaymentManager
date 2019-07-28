@@ -34,7 +34,7 @@ public class BankAmountDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (isFilled(bankAmount)) {
-                            listener.applyBankAmount(Integer.parseInt(bankAmount.getText().toString()));
+                            listener.applyBankAmount(Double.parseDouble(bankAmount.getText().toString()));
                             Toast.makeText(getContext(), bankAmount.getText().toString() + " is new bank amount", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "user needs to fill out all fields", Toast.LENGTH_SHORT).show();
@@ -46,6 +46,6 @@ public class BankAmountDialog extends AppCompatDialogFragment {
     }
 
     public interface BankAmountListener {
-        void applyBankAmount(Integer amount);
+        void applyBankAmount(Double amount);
     }
 }

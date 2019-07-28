@@ -8,11 +8,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,11 +27,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView textMoneyRemaining;
     private RecyclerView envelopesRecycler;
     private double totalEnvelopesAmount;
+    private EnvelopesAdapter envelopesAdapter;
 
     //test data
     private ArrayList<String> envelopeNames = new ArrayList<>(Arrays.asList("Electric Bill", "Phone", "Savings for a Car", "Cable Bill"));
-    private ArrayList<Integer> currentAmounts = new ArrayList<>(Arrays.asList(100, 200, 25, 100));
-    private ArrayList<Integer> autoUpdateAmounts = new ArrayList<>(Arrays.asList(25, 10, 5, 25));
+    private ArrayList<Double> currentAmounts = new ArrayList<>(Arrays.asList(100.00, 200.00, 25.00, 100.00));
+    private ArrayList<Double> autoUpdateAmounts = new ArrayList<>(Arrays.asList(25.00, 10.00, 5.00, 25.00));
+    private Double moneyInbank;
+    private Double moneyChecksNotCashed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                NewEnvelopeDialog dialog = new NewEnvelopeDialog();
+                NewEnvelopeDialog dialog = new NewEnvelopeDialog(new NewEnvelopeDialog.NewEnvelopeDialogListener() {
+                    @Override
+                    public void onCreateEnvelope(String name, Double amount, Double autoUpdate) {
+                        envelopeNames.add(name);
+                        currentAmounts.add(amount);
+                        autoUpdateAmounts.add(autoUpdate);
+                        envelopesAdapter.notifyDataSetChanged();
+                    }
+                });
                 dialog.setRetainInstance(true);
                 dialog.show(getSupportFragmentManager(), "new envelope dialog");
                 return true;
@@ -66,8 +81,9 @@ public class MainActivity extends AppCompatActivity {
         envelopesRecycler.setHasFixedSize(true);
         textMoneyInEnvelopes.setText("$" + totalEnvelopesAmount);
 
-        EnvelopesAdapter adapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
-        envelopesRecycler.setAdapter(adapter);
+        envelopesAdapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
+        envelopesRecycler.setAdapter(envelopesAdapter);
+        envelopesRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(envelopesRecycler.getContext(), llm.getOrientation());
         envelopesRecycler.addItemDecoration(dividerItemDecoration);
@@ -83,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
                 BankAmountDialog dialog = new BankAmountDialog(new BankAmountDialog.BankAmountListener() {
                     @Override
-                    public void applyBankAmount(Integer amount) {
+                    public void applyBankAmount(Double amount) {
                         btnMoneyInBank.setText(formatMoney(amount));
                         updateMoneyOwed();
                     }
@@ -98,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ChecksNotCashedDialog dialog = new ChecksNotCashedDialog(new ChecksNotCashedDialog.ChecksNotCashedListener() {
                     @Override
-                    public void applyChecks(Integer amount) {
+                    public void applyChecks(Double amount) {
+                        moneyChecksNotCashed = amount;
                         btnMoneyChecksNotCashed.setText(formatMoney(amount));
                         updateMoneyOwed();
                     }
@@ -125,13 +142,5 @@ public class MainActivity extends AppCompatActivity {
             textMoneyRemaining.setTextColor(getResources().getColor(R.color.red));
         }
         textMoneyRemaining.setText("" + moneyOwed);
-    }
-
-    public String formatMoney(Integer s) {
-        return "$" + s;
-    }
-
-    public Integer parseMoneyString(String s) {
-        return 0;
     }
 }
