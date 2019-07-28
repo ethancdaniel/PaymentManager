@@ -86,27 +86,9 @@ public class MainActivity extends AppCompatActivity {
         btnMoneyInBank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-
-                final EditText input = new EditText(v.getContext());
-                input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                builder.setView(input);
-                builder.setTitle(R.string.bank_acc_balance);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        btnMoneyInBank.setText("$" + input.getText().toString());
-                        updateMoneyOwed();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();
+                BankAmountDialog dialog = new BankAmountDialog();
+                dialog.setRetainInstance(true);
+                dialog.show(getSupportFragmentManager(), "bank amount dialog");
             }
         });
 
