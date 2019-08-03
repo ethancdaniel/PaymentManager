@@ -5,16 +5,17 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.fragment.app.DialogFragment;
+
 import static com.daniel.ethan.paymentmanager.Utils.isFilled;
 
 @SuppressLint("ValidFragment")
-public class BankAmountDialog extends AppCompatDialogFragment {
+public class BankAmountDialog extends DialogFragment {
     EditText bankAmount;
     BankAmountListener listener;
 

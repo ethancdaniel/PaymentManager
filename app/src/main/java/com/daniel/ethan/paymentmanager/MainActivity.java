@@ -1,18 +1,18 @@
 package com.daniel.ethan.paymentmanager;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.text.NumberFormat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         moneyOwed -= totalEnvelopesAmount;
         if (moneyOwed < 0) {
             moneyOwed = -moneyOwed;
-            textMoneyRemaining.setTextColor(getResources().getColor(R.color.red));
+            textMoneyRemaining.setTextColor(ContextCompat.getColor(this, R.color.red));
         }
         textMoneyRemaining.setText(formatMoney(moneyOwed));
     }

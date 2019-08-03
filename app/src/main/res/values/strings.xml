@@ -16,4 +16,6 @@
     <string name="total_amount_dialog">Total Amount</string>
     <string name="auto_update_amount_dialog">Auto-update Amount</string>
     <string name="btn_dialog_create">Create</string>
+
+    <string name="title_activity_signup">Sign Up</string>
 </resources>
