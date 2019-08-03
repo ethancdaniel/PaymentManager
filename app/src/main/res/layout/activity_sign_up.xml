@@ -7,23 +7,23 @@
     android:gravity="center">
 
     <EditText
-        android:id="@+id/ETemail"
+        android:id="@+id/sign_up_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:hint="Email"
         android:inputType="textEmailAddress"
         />
+
     <EditText
-        android:id="@+id/ETpassword"
+        android:id="@+id/sign_up_pwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:hint="Password"
-        android:inputType="numberPassword"
-        />
+        android:inputType="textPassword" />
     <Button
-        android:id="@+id/btnSignUp"
+        android:id="@+id/btn_sign_up"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
