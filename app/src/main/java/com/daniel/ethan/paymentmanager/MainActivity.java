@@ -23,14 +23,20 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
@@ -87,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                         map.put("name", name);
                         map.put("amount", amount);
                         map.put("autoUpdate", autoUpdate);
-                        db.collection("Envelopes").document(mAuth.getUid()).set(map);
+                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document().set(map);
                         textNoEnvelopes.setVisibility(View.GONE);
                         envelopesRecycler.setVisibility(View.VISIBLE);
                     }
@@ -125,23 +131,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ref = db.collection("Envelopes").document(mAuth.getUid());
-        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        CollectionReference cRef = db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes");
+        cRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        updateMoneyOwed();
-                    } else {
-                        Log.d(TAG, "No envelopes document for this user");
-                        textMoneyInEnvelopes.setVisibility(View.VISIBLE);
-                        envelopesRecycler.setVisibility(View.GONE);
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (queryDocumentSnapshots.size() == 0) {
+                    textMoneyInEnvelopes.setVisibility(View.VISIBLE);
+                    envelopesRecycler.setVisibility(View.GONE);
                 }
+                envelopeNames.clear();
+                currentAmounts.clear();
+                autoUpdateAmounts.clear();
+
+                for (DocumentSnapshot child : queryDocumentSnapshots.getDocuments() ){
+                    Log.d(TAG, "" + child.getData());
+                    envelopeNames.add(((String) child.get("name")));
+                    currentAmounts.add((double) child.get("amount"));
+                    autoUpdateAmounts.add((double) child.get("autoUpdate"));
+                }
+                envelopesAdapter.notifyDataSetChanged();
             }
         });
 
@@ -236,6 +244,10 @@ public class MainActivity extends AppCompatActivity {
         totalEnvelopesAmount = 0;
         double moneyOwed = moneyInbank;
         moneyOwed -= moneyChecksNotCashed;
+
+        if (envelopeNames.size() > 0) {
+            textNoEnvelopes.setVisibility(View.GONE);
+        }
 
         for (int i = 0; i < currentAmounts.size(); i++) {
             totalEnvelopesAmount += currentAmounts.get(i);
