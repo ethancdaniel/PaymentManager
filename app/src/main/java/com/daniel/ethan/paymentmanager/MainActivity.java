@@ -35,6 +35,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         map.put("name", name);
                         map.put("amount", amount);
                         map.put("autoUpdate", autoUpdate);
+                        map.put("creationDate", Calendar.getInstance().getTime());
                         db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document( "" + envelopeNames.size()).set(map);
 
                         envelopeNames.add(name);
