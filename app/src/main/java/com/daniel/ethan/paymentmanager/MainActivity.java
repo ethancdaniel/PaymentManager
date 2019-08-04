@@ -1,5 +1,8 @@
 package com.daniel.ethan.paymentmanager;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -24,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
@@ -44,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private EnvelopesAdapter envelopesAdapter;
 
     //test data
-    private ArrayList<String> envelopeNames = new ArrayList<>(Arrays.asList("Electric Bill", "Phone", "Savings for a Car", "Cable Bill"));
-    private ArrayList<Double> currentAmounts = new ArrayList<>(Arrays.asList(100.00, 200.00, 25.00, 100.00));
-    private ArrayList<Double> autoUpdateAmounts = new ArrayList<>(Arrays.asList(25.00, 10.00, 5.00, 25.00));
+    private ArrayList<String> envelopeNames;
+    private ArrayList<Double> currentAmounts;
+    private ArrayList<Double> autoUpdateAmounts;
     private Double moneyInbank;
     private Double moneyChecksNotCashed;
 
@@ -75,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
                         currentAmounts.add(amount);
                         autoUpdateAmounts.add(autoUpdate);
                         envelopesAdapter.notifyDataSetChanged();
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("name", name);
+                        map.put("amount", amount);
+                        map.put("autoUpdate", autoUpdate);
+                        db.collection("Envelopes").document(mAuth.getUid()).set(map);
                     }
                 });
                 dialog.setRetainInstance(true);
@@ -100,6 +112,24 @@ public class MainActivity extends AppCompatActivity {
 
                         btnMoneyInBank.setText(formatMoney(moneyInbank));
                         btnMoneyChecksNotCashed.setText(formatMoney(moneyChecksNotCashed));
+                        updateMoneyOwed();
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        ref = db.collection("Envelopes").document(mAuth.getUid());
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         updateMoneyOwed();
                     } else {
                         Log.d(TAG, "No such document");
@@ -141,6 +171,19 @@ public class MainActivity extends AppCompatActivity {
                     public void applyBankAmount(Double amount) {
                         moneyInbank = amount;
                         btnMoneyInBank.setText(formatMoney(amount));
+                        db.collection("Money").document(mAuth.getUid()).update("moneyInBank", amount)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "Money in bank updated successfully");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error updating money in bank");
+                            }
+                        });
                         updateMoneyOwed();
                     }
                 });
@@ -157,6 +200,19 @@ public class MainActivity extends AppCompatActivity {
                     public void applyChecks(Double amount) {
                         moneyChecksNotCashed = amount;
                         btnMoneyChecksNotCashed.setText(formatMoney(amount));
+                        db.collection("Money").document(mAuth.getUid()).update("moneyNotCashed", amount)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "Money in bank updated successfully");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error updating money in bank");
+                                    }
+                                });
                         updateMoneyOwed();
                     }
                 });
@@ -180,6 +236,10 @@ public class MainActivity extends AppCompatActivity {
         if (moneyOwed < 0) {
             moneyOwed = -moneyOwed;
             textMoneyRemaining.setTextColor(ContextCompat.getColor(this, R.color.red));
+            textMoneyRemaining.setAlpha(1.0f);
+        } else {
+            textMoneyRemaining.setTextColor(Color.parseColor("#000000"));
+            textMoneyRemaining.setAlpha(0.54f);
         }
         textMoneyRemaining.setText(formatMoney(moneyOwed));
     }
