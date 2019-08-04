@@ -6,18 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,6 +21,7 @@ import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
 public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.ViewHolder> {
 
+    private TextView noEnvelopesText;
     private ArrayList<String> envelopeNames;
     private ArrayList<Double> envelopeCurrentAmounts;
     private ArrayList<Double> envelopeAutoUpdateAmounts;
@@ -36,6 +30,7 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public EnvelopesAdapter(ArrayList<String> envelopeNames, ArrayList<Double> envelopeCurrentAmounts, ArrayList<Double> envelopeAutoUpdateAmounts, Context mContext) {
+        noEnvelopesText = ((AppCompatActivity) mContext).findViewById(R.id.text_no_envelopes);
         this.envelopeNames = envelopeNames;
         this.envelopeCurrentAmounts = envelopeCurrentAmounts;
         this.envelopeAutoUpdateAmounts = envelopeAutoUpdateAmounts;
@@ -73,6 +68,25 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
                     }
                 });
                 dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "edit dialog");
+            }
+        });
+        viewHolder.deleteImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeleteEnvelopeDialog dialog = new DeleteEnvelopeDialog(new DeleteEnvelopeDialog.DeleteEnvelopeDialogListener() {
+                    @Override
+                    public void onDeletePressed() {
+                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document("" + i).delete();
+                        envelopeNames.remove(i);
+                        envelopeCurrentAmounts.remove(i);
+                        envelopeAutoUpdateAmounts.remove(i);
+
+                        if (envelopeNames.isEmpty()) {
+                            noEnvelopesText.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+                dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "delete dialog");
             }
         });
         viewHolder.swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
