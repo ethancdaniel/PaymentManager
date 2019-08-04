@@ -55,8 +55,9 @@ public class SignUpActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
                                     Map<String, Object> map = new HashMap<>();
-                                    map.put("moneyInBank", 0);
-                                    map.put("moneyNotCashed", 0);
+                                    double defaultValue = 0.0;
+                                    map.put("moneyInBank", defaultValue);
+                                    map.put("moneyNotCashed", defaultValue);
                                     db.collection("Money").document(mAuth.getUid())
                                             .set(map)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {

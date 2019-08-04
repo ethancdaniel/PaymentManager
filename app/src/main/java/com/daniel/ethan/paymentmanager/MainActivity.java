@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView textMoneyInEnvelopes;
     private TextView textMoneyRemaining;
+    private TextView textNoEnvelopes;
     private RecyclerView envelopesRecycler;
     private double totalEnvelopesAmount;
     private EnvelopesAdapter envelopesAdapter;
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
                         map.put("amount", amount);
                         map.put("autoUpdate", autoUpdate);
                         db.collection("Envelopes").document(mAuth.getUid()).set(map);
+                        textNoEnvelopes.setVisibility(View.GONE);
+                        envelopesRecycler.setVisibility(View.VISIBLE);
                     }
                 });
                 dialog.setRetainInstance(true);
@@ -107,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        moneyInbank = ((Long) document.get("moneyInBank")).doubleValue();
-                        moneyChecksNotCashed = ((Long) document.get("moneyNotCashed")).doubleValue();
+                        moneyInbank = (double) document.get("moneyInBank");
+                        moneyChecksNotCashed = (double) document.get("moneyNotCashed");
 
                         btnMoneyInBank.setText(formatMoney(moneyInbank));
                         btnMoneyChecksNotCashed.setText(formatMoney(moneyChecksNotCashed));
@@ -132,7 +135,9 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         updateMoneyOwed();
                     } else {
-                        Log.d(TAG, "No such document");
+                        Log.d(TAG, "No envelopes document for this user");
+                        textMoneyInEnvelopes.setVisibility(View.VISIBLE);
+                        envelopesRecycler.setVisibility(View.GONE);
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -146,9 +151,14 @@ public class MainActivity extends AppCompatActivity {
         btnMoneyChecksNotCashed = findViewById(R.id.btn_checks_not_cashed);
         textMoneyInEnvelopes = findViewById(R.id.text_money_in_envelopes);
         textMoneyRemaining = findViewById(R.id.text_money_remaining);
+        textNoEnvelopes = findViewById(R.id.text_no_envelopes);
         envelopesRecycler = findViewById(R.id.envelopes_recycler);
         envelopesRecycler.setHasFixedSize(true);
         textMoneyInEnvelopes.setText(formatMoney(totalEnvelopesAmount));
+
+        envelopeNames = new ArrayList<>();
+        currentAmounts = new ArrayList<>();
+        autoUpdateAmounts = new ArrayList<>();
 
         envelopesAdapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
         envelopesRecycler.setAdapter(envelopesAdapter);

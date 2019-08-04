@@ -18,4 +18,5 @@
     <string name="btn_dialog_create">Create</string>
 
     <string name="title_activity_signup">Sign Up</string>
+    <string name="tooltip_no_envelopes">You have no envelopes. Create your first by pressing the \'+\' in the top right.</string>
 </resources>
