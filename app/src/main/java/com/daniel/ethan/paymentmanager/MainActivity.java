@@ -1,17 +1,26 @@
 package com.daniel.ethan.paymentmanager;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +28,11 @@ import java.util.Arrays;
 import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private Button btnMoneyInBank;
     private Button btnMoneyChecksNotCashed;
@@ -33,14 +47,15 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> envelopeNames = new ArrayList<>(Arrays.asList("Electric Bill", "Phone", "Savings for a Car", "Cable Bill"));
     private ArrayList<Double> currentAmounts = new ArrayList<>(Arrays.asList(100.00, 200.00, 25.00, 100.00));
     private ArrayList<Double> autoUpdateAmounts = new ArrayList<>(Arrays.asList(25.00, 10.00, 5.00, 25.00));
-    private Double moneyInbank = 1000.00;
-    private Double moneyChecksNotCashed = 1000.00;
+    private Double moneyInbank;
+    private Double moneyChecksNotCashed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initComponents();
+        getUserData();
     }
 
     @Override
@@ -70,8 +85,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void getUserData() {
+        mAuth = FirebaseAuth.getInstance();
+        DocumentReference ref = db.collection("Money").document(mAuth.getUid());
+        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        moneyInbank = ((Long) document.get("moneyInBank")).doubleValue();
+                        moneyChecksNotCashed = ((Long) document.get("moneyNotCashed")).doubleValue();
 
+                        btnMoneyInBank.setText(formatMoney(moneyInbank));
+                        btnMoneyChecksNotCashed.setText(formatMoney(moneyChecksNotCashed));
+                        updateMoneyOwed();
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
+    }
     private void initComponents() {
         btnMoneyInBank = findViewById(R.id.btn_money_in_bank);
         btnMoneyChecksNotCashed = findViewById(R.id.btn_checks_not_cashed);
@@ -81,9 +120,6 @@ public class MainActivity extends AppCompatActivity {
         envelopesRecycler.setHasFixedSize(true);
         textMoneyInEnvelopes.setText(formatMoney(totalEnvelopesAmount));
 
-        btnMoneyInBank.setText(formatMoney(moneyInbank));
-        btnMoneyChecksNotCashed.setText(formatMoney(moneyChecksNotCashed));
-
         envelopesAdapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
         envelopesRecycler.setAdapter(envelopesAdapter);
         envelopesRecycler.setNestedScrollingEnabled(false);
@@ -91,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(envelopesRecycler.getContext(), llm.getOrientation());
         envelopesRecycler.addItemDecoration(dividerItemDecoration);
         envelopesRecycler.setLayoutManager(llm);
-        updateMoneyOwed();
+
         initializeOnClicks();
     }
 
