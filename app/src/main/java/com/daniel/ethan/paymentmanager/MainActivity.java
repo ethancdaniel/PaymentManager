@@ -88,15 +88,16 @@ public class MainActivity extends AppCompatActivity {
                 NewEnvelopeDialog dialog = new NewEnvelopeDialog(new NewEnvelopeDialog.NewEnvelopeDialogListener() {
                     @Override
                     public void onCreateEnvelope(String name, Double amount, Double autoUpdate) {
-                        envelopeNames.add(name);
-                        currentAmounts.add(amount);
-                        autoUpdateAmounts.add(autoUpdate);
-                        envelopesAdapter.notifyDataSetChanged();
                         Map<String, Object> map = new HashMap<>();
                         map.put("name", name);
                         map.put("amount", amount);
                         map.put("autoUpdate", autoUpdate);
-                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document().set(map);
+                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document( "" + envelopeNames.size()).set(map);
+
+                        envelopeNames.add(name);
+                        currentAmounts.add(amount);
+                        autoUpdateAmounts.add(autoUpdate);
+                        envelopesAdapter.notifyDataSetChanged();
                         textNoEnvelopes.setVisibility(View.GONE);
                         envelopesRecycler.setVisibility(View.VISIBLE);
                     }

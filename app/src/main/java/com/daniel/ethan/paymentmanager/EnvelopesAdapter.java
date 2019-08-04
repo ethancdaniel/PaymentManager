@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,8 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,8 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
     private ArrayList<Double> envelopeCurrentAmounts;
     private ArrayList<Double> envelopeAutoUpdateAmounts;
     private Context mContext;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public EnvelopesAdapter(ArrayList<String> envelopeNames, ArrayList<Double> envelopeCurrentAmounts, ArrayList<Double> envelopeAutoUpdateAmounts, Context mContext) {
         this.envelopeNames = envelopeNames;
@@ -46,11 +51,30 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
-        viewHolder.envelopeName.setText(envelopeNames.get(i));
-        viewHolder.currentAmount.setText(formatMoney(envelopeCurrentAmounts.get(i)));
-        viewHolder.autoUpdateAmount.setText(formatMoney(envelopeAutoUpdateAmounts.get(i)));
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
+        final String name = envelopeNames.get(i);
+        final Double amount = envelopeCurrentAmounts.get(i);
+        final Double autoUpdate = envelopeAutoUpdateAmounts.get(i);
+        viewHolder.envelopeName.setText(name);
+        viewHolder.currentAmount.setText(formatMoney(amount));
+        viewHolder.autoUpdateAmount.setText(formatMoney(autoUpdate));
 
+        viewHolder.editImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditEnvelopeDialog dialog = new EditEnvelopeDialog(name, amount.toString(), autoUpdate.toString(), new EditEnvelopeDialog.EditEnvelopeDialogListener() {
+                    @Override
+                    public void onEditEnvelope(String name, Double amount, Double autoUpdate) {
+                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document("" + i).update(
+                                "name", name,
+                                "amount", amount,
+                                "autoUpdate", autoUpdate
+                        );
+                    }
+                });
+                dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "edit dialog");
+            }
+        });
         viewHolder.swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
     }
 
