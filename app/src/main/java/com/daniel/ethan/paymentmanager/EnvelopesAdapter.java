@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +34,12 @@ public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.View
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_envelope, viewGroup, false);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
@@ -42,7 +49,7 @@ public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.View
         viewHolder.envelopeName.setText(envelopeNames.get(i));
         viewHolder.currentAmount.setText(formatMoney(envelopeCurrentAmounts.get(i)));
         viewHolder.autoUpdateAmount.setText(formatMoney(envelopeAutoUpdateAmounts.get(i)));
-        viewHolder.layout.setOnClickListener(new View.OnClickListener() {
+        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, envelopeNames.get(i) + " clicked.", Toast.LENGTH_SHORT).show();
@@ -59,13 +66,13 @@ public class EnvelopesAdapter extends RecyclerView.Adapter<EnvelopesAdapter.View
         TextView envelopeName;
         TextView currentAmount;
         TextView autoUpdateAmount;
-        ConstraintLayout layout;
+        CardView cardView;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             envelopeName = itemView.findViewById(R.id.text_envelope_name);
             currentAmount = itemView.findViewById(R.id.text_current_amount);
             autoUpdateAmount = itemView.findViewById(R.id.text_auto_update_amount);
-            layout = itemView.findViewById(R.id.layout_envelope_item);
+            cardView = itemView.findViewById(R.id.card_envelope);
         }
     }
 }

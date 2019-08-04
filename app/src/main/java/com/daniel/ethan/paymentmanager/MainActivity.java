@@ -2,6 +2,7 @@ package com.daniel.ethan.paymentmanager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private final int ENVELOPE_SPACING = 10;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -176,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
         envelopesRecycler.setAdapter(envelopesAdapter);
         envelopesRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(envelopesRecycler.getContext(), llm.getOrientation());
-        envelopesRecycler.addItemDecoration(dividerItemDecoration);
+        SpacingItemDecoration decoration = new SpacingItemDecoration(ENVELOPE_SPACING);
+        envelopesRecycler.addItemDecoration(decoration);
         envelopesRecycler.setLayoutManager(llm);
 
         initializeOnClicks();
