@@ -1,6 +1,7 @@
 package com.daniel.ethan.paymentmanager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -101,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setRetainInstance(true);
                 dialog.show(getSupportFragmentManager(), "new envelope dialog");
                 return true;
+            case R.id.action_sign_out:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
