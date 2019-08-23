@@ -21,4 +21,5 @@
     <string name="tooltip_no_envelopes">You have no envelopes. Create your first by pressing the \'+\' in the top right.</string>
     <string name="menu_sign_out">Sign Out</string>
     <string name="electric_bill">Electric Bill</string>
+    <string name="amount_paid">Amount paid</string>
 </resources>

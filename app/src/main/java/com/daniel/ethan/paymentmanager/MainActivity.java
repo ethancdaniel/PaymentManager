@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                         envelopesAdapter.notifyDataSetChanged();
                         textNoEnvelopes.setVisibility(View.GONE);
                         envelopesRecycler.setVisibility(View.VISIBLE);
+                        updateMoneyOwed();
                     }
                 });
                 dialog.setRetainInstance(true);
@@ -179,6 +180,17 @@ public class MainActivity extends AppCompatActivity {
         autoUpdateAmounts = new ArrayList<>();
 
         envelopesAdapter = new EnvelopesAdapter(envelopeNames, currentAmounts, autoUpdateAmounts, this);
+        envelopesAdapter.setEnvelopePaidListener(new EnvelopesAdapter.onEnvelopeActionListener() {
+            @Override
+            public void onEnvelopePaid(double newBankAmount) {
+                btnMoneyInBank.setText(formatMoney(newBankAmount));
+            }
+
+            @Override
+            public void onEnvelopeEdited() {
+                updateMoneyOwed();
+            }
+        });
         envelopesRecycler.setAdapter(envelopesAdapter);
         envelopesRecycler.setNestedScrollingEnabled(false);
         LinearLayoutManager llm = new LinearLayoutManager(this);

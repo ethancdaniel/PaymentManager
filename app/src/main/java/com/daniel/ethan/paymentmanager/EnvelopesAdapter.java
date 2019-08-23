@@ -1,6 +1,7 @@
 package com.daniel.ethan.paymentmanager;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,10 +10,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -21,6 +27,7 @@ import static com.daniel.ethan.paymentmanager.Utils.formatMoney;
 
 public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.ViewHolder> {
 
+    private static final String TAG = "EnvelopesAdapter";
     private TextView noEnvelopesText;
     private ArrayList<String> envelopeNames;
     private ArrayList<Double> envelopeCurrentAmounts;
@@ -28,6 +35,7 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
     private Context mContext;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private onEnvelopeActionListener envelopeListener;
 
     public EnvelopesAdapter(ArrayList<String> envelopeNames, ArrayList<Double> envelopeCurrentAmounts, ArrayList<Double> envelopeAutoUpdateAmounts, Context mContext) {
         noEnvelopesText = ((AppCompatActivity) mContext).findViewById(R.id.text_no_envelopes);
@@ -48,16 +56,16 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         final String name = envelopeNames.get(i);
-        final Double amount = envelopeCurrentAmounts.get(i);
+        final Double amountInEnvelope = envelopeCurrentAmounts.get(i);
         final Double autoUpdate = envelopeAutoUpdateAmounts.get(i);
         viewHolder.envelopeName.setText(name);
-        viewHolder.currentAmount.setText(formatMoney(amount));
+        viewHolder.currentAmount.setText(formatMoney(amountInEnvelope));
         viewHolder.autoUpdateAmount.setText(formatMoney(autoUpdate));
 
         viewHolder.editImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditEnvelopeDialog dialog = new EditEnvelopeDialog(name, amount.toString(), autoUpdate.toString(), new EditEnvelopeDialog.EditEnvelopeDialogListener() {
+                EditEnvelopeDialog dialog = new EditEnvelopeDialog(name, amountInEnvelope.toString(), autoUpdate.toString(), new EditEnvelopeDialog.EditEnvelopeDialogListener() {
                     @Override
                     public void onEditEnvelope(String name, Double amount, Double autoUpdate) {
                         db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document("" + i).update(
@@ -65,6 +73,7 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
                                 "amount", amount,
                                 "autoUpdate", autoUpdate
                         );
+                        envelopeListener.onEnvelopeEdited();
                     }
                 });
                 dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "edit dialog");
@@ -84,9 +93,42 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
                         if (envelopeNames.isEmpty()) {
                             noEnvelopesText.setVisibility(View.VISIBLE);
                         }
+                        envelopeListener.onEnvelopeEdited();
                     }
                 });
                 dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "delete dialog");
+            }
+        });
+        viewHolder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PayEnvelopeDialog dialog = new PayEnvelopeDialog(name, formatMoney(amountInEnvelope), new PayEnvelopeDialog.PayEnvelopeDialogListener() {
+                    @Override
+                    public void onPayPressed(final double amount) {
+                        envelopeCurrentAmounts.set(i, amountInEnvelope - amount);
+                        db.collection("Envelopes").document(mAuth.getUid()).collection("User Envelopes").document("" + i).update(
+                                "amount", envelopeCurrentAmounts.get(i));
+
+                        DocumentReference ref = db.collection("Money").document(mAuth.getUid());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                        Double moneyInBank = (Double) document.get("moneyInBank");
+                                        Double newBankAmount = moneyInBank - amount;
+                                        db.collection("Money").document(mAuth.getUid()).update("moneyInBank", newBankAmount);
+                                        envelopeListener.onEnvelopePaid(newBankAmount);
+                                    }
+                                }
+                            }
+                        });
+
+                    }
+                });
+                dialog.show(((AppCompatActivity) mContext).getSupportFragmentManager(), "pay dialog");
             }
         });
         viewHolder.swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
@@ -109,6 +151,7 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
         SwipeLayout swipeLayout;
         ImageView editImageView;
         ImageView deleteImageView;
+        ConstraintLayout layout;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             envelopeName = itemView.findViewById(R.id.text_envelope_name);
@@ -117,6 +160,18 @@ public class EnvelopesAdapter extends RecyclerSwipeAdapter<EnvelopesAdapter.View
             swipeLayout = itemView.findViewById(R.id.swipe);
             editImageView = itemView.findViewById(R.id.edit_envelope);
             deleteImageView = itemView.findViewById(R.id.delete_envelope);
+            layout = itemView.findViewById(R.id.layout_envelope);
         }
     }
+
+    public void setEnvelopePaidListener(onEnvelopeActionListener listener) {
+        this.envelopeListener = listener;
+    }
+
+    public interface onEnvelopeActionListener {
+        void onEnvelopePaid(double newBankAmount);
+        void onEnvelopeEdited();
+    }
 }
+
+
